@@ -34,10 +34,17 @@ let replayInstance = null;
 
 const startRecording = () => {
   stopFn = record({
-    emit(event) {
+    // isCheckout 是一个标识，告诉你重新制作了快照
+    emit(event, isCheckout) {
+      if (isCheckout) {
+        events.push([]);
+      }
       events.push(event);
       console.log(event);
     },
+    recordCanvas: true, // 记录 canvas 内容
+    checkoutEveryNms: 10 * 1000, // 每10s重新制作快照
+    checkoutEveryNth: 200, // 每 200 个 event 重新制作快照
   });
 };
 
@@ -53,6 +60,7 @@ const replay = () => {
         target: videoRef.value,
         props: {
           events,
+          UNSAFE_replayCanvas: true,
         },
       });
     }
